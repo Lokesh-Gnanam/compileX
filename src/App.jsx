@@ -4,6 +4,7 @@ import CodeEditor from './components/CodeEditor';
 import InputPanel from './components/InputPanel';
 import OutputPanel from './components/OutputPanel';
 import StatusBar from './components/StatusBar';
+import Footer from './components/Footer';
 import { LANGUAGES, getLanguageById, DEFAULT_LANGUAGE_ID } from './constants/languages';
 import { executeCode } from './services/api';
 
@@ -20,6 +21,8 @@ export default function App() {
   const [executionTime, setExecutionTime] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [serverOnline, setServerOnline] = useState(true);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0); // 30-sec cooldown after run
+  const cooldownTimerRef = useRef(null);
   // Resizable split pane state
   const [editorWidth, setEditorWidth] = useState(60);
   const isDragging = useRef(false);
@@ -45,8 +48,23 @@ export default function App() {
     setExecutionTime(null);
   }, []);
 
+  const startCooldown = () => {
+    // Clear any existing cooldown timer
+    if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current);
+    setCooldownSeconds(30);
+    cooldownTimerRef.current = setInterval(() => {
+      setCooldownSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(cooldownTimerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleRun = async () => {
-    if (isRunning) return;
+    if (isRunning || cooldownSeconds > 0) return;
     setIsRunning(true);
     setOutput(null);
     setError(false);
@@ -85,8 +103,14 @@ export default function App() {
       setError(true);
     } finally {
       setIsRunning(false);
+      startCooldown();
     }
   };
+
+  // Cleanup cooldown timer on unmount
+  useEffect(() => {
+    return () => { if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current); };
+  }, []);
 
   // Drag-to-resize logic
   const handleDividerMouseDown = (e) => {
@@ -140,13 +164,14 @@ export default function App() {
         isRunning={isRunning}
         darkMode={darkMode}
         onToggleTheme={() => setDarkMode(prev => !prev)}
+        cooldownSeconds={cooldownSeconds}
       />
 
       {/* Main Workspace */}
       <main
         ref={containerRef}
         className="flex flex-1 overflow-hidden"
-        style={{ marginTop: '64px', marginBottom: '32px' }}
+        style={{ marginTop: '64px', marginBottom: '36px' }}
         id="main-workspace"
       >
         {/* Code Editor Pane */}
@@ -238,12 +263,8 @@ export default function App() {
         </div>
       </main>
 
-      {/* Bottom Status Bar */}
-      <StatusBar
-        language={selectedLanguage}
-        executionTime={executionTime}
-        serverOnline={serverOnline}
-      />
+      {/* Footer with links and attribution */}
+      <Footer />
     </div>
   );
 }

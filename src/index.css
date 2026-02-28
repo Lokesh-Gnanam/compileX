@@ -94,6 +94,16 @@
     z-index: 1;
   }
 
+  .cooldown-btn {
+    background: linear-gradient(135deg, #374151, #4B5563, #6B7280) !important;
+    box-shadow: none !important;
+    color: #9CA3AF !important;
+  }
+
+  .cooldown-btn::before {
+    display: none;
+  }
+
   .status-dot {
     width: 8px;
     height: 8px;

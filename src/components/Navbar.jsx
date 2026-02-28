@@ -1,4 +1,4 @@
-import { Play, Moon, Sun, Zap } from 'lucide-react';
+import { Play, Moon, Sun, Zap, Timer } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
 export default function Navbar({
@@ -8,7 +8,9 @@ export default function Navbar({
   isRunning,
   darkMode,
   onToggleTheme,
+  cooldownSeconds,
 }) {
+  const inCooldown = cooldownSeconds > 0;
   return (
     <header className="glass fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-5 gap-4">
       {/* Logo */}
@@ -57,15 +59,22 @@ export default function Navbar({
         <button
           id="run-code-btn"
           onClick={onRun}
-          disabled={isRunning}
+          disabled={isRunning || inCooldown}
+          title={inCooldown ? `Cooldown: run again in ${cooldownSeconds}s. Compile the code once you feel the code is correct.` : 'Run Code (Ctrl+Enter)'}
           className={`run-btn flex items-center gap-2 px-5 py-2.5 rounded-xl
-            text-sm font-bold text-gray-900 no-select shadow-glow-orange
-            ${isRunning ? 'opacity-70 cursor-not-allowed scale-95' : ''}`}
+            text-sm font-bold text-gray-900 no-select
+            ${(isRunning || inCooldown) ? 'opacity-60 cursor-not-allowed scale-95' : ''}
+            ${inCooldown ? 'cooldown-btn' : ''}`}
         >
           {isRunning ? (
             <>
               <Zap className="w-4 h-4 animate-pulse relative z-10" />
               <span>Running...</span>
+            </>
+          ) : inCooldown ? (
+            <>
+              <Timer className="w-4 h-4 relative z-10" />
+              <span>Wait {cooldownSeconds}s</span>
             </>
           ) : (
             <>
