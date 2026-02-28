@@ -8,7 +8,7 @@ export const LANGUAGES = [
     color: '#B07219',
     defaultCode: `public class Main {
   public static void main(String[] args) {
-    System.out.println("Hey! This is Loki Here");
+    System.out.println("Hey, Hi! This is Loki Here");
   }
 }`,
     fileExtension: 'java',
@@ -20,7 +20,7 @@ export const LANGUAGES = [
     monacoId: 'python',
     icon: '🐍',
     color: '#3572A5',
-    defaultCode: `print("Hey! This is Loki Here")`,
+    defaultCode: `print("Hey, Hi! This is Loki Here")`,
     fileExtension: 'py',
   },
   
@@ -31,7 +31,7 @@ export const LANGUAGES = [
     icon: '⚡',
     color: '#F34B7D',
     defaultCode: `#include <iostream>
-int main() { std::cout << "Hey! This is Loki Here"; }`,
+int main() { std::cout << "Hey, Hi! This is Loki Here"; }`,
     fileExtension: 'cpp',
   },
   {
@@ -41,7 +41,7 @@ int main() { std::cout << "Hey! This is Loki Here"; }`,
     icon: '🔵',
     color: '#555555',
     defaultCode: `#include <stdio.h>
-int main() { printf("Hey! This is Loki Here"); }`,
+int main() { printf("Hey, Hi! This is Loki Here"); }`,
     fileExtension: 'c',
   },
   {
@@ -50,7 +50,7 @@ int main() { printf("Hey! This is Loki Here"); }`,
     monacoId: 'javascript',
     icon: '🟨',
     color: '#F7DF1E',
-    defaultCode: `console.log("Hey! This is Loki Here");`,
+    defaultCode: `console.log("Hey, Hi! This is Loki Here");`,
     fileExtension: 'js',
   },
   {
@@ -59,7 +59,7 @@ int main() { printf("Hey! This is Loki Here"); }`,
     monacoId: 'typescript',
     icon: '🔷',
     color: '#2B7489',
-    defaultCode: `let msg: string = "Hey! This is Loki Here";
+    defaultCode: `let msg: string = "Hey, Hi! This is Loki Here";
 console.log(msg);`,
     fileExtension: 'ts',
   },
