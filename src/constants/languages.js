@@ -1,58 +1,6 @@
 // Language definitions with default starter code
 export const LANGUAGES = [
   {
-    id: 'javascript',
-    name: 'JavaScript',
-    monacoId: 'javascript',
-    icon: '🟨',
-    color: '#F7DF1E',
-    defaultCode: `// JavaScript - Node.js
-function greet(name) {
-  return \`Hello, \${name}! Welcome to CompileX.\`;
-}
-
-console.log(greet("World"));
-console.log("Current time:", new Date().toISOString());
-
-// Fibonacci sequence
-function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-for (let i = 0; i < 10; i++) {
-  process.stdout.write(fibonacci(i) + " ");
-}
-console.log();`,
-    fileExtension: 'js',
-  },
-  {
-    id: 'python',
-    name: 'Python',
-    monacoId: 'python',
-    icon: '🐍',
-    color: '#3572A5',
-    defaultCode: `# Python 3
-def greet(name: str) -> str:
-    return f"Hello, {name}! Welcome to CompileX."
-
-print(greet("World"))
-
-# Fibonacci sequence
-def fibonacci(n: int) -> int:
-    if n <= 1:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)
-
-fib_sequence = [fibonacci(i) for i in range(10)]
-print("Fibonacci:", fib_sequence)
-
-# List comprehension example
-squares = [x**2 for x in range(1, 6)]
-print("Squares:", squares)`,
-    fileExtension: 'py',
-  },
-  {
     id: 'java',
     name: 'Java',
     monacoId: 'java',
@@ -87,6 +35,34 @@ public class Main {
 }`,
     fileExtension: 'java',
   },
+  
+  {
+    id: 'python',
+    name: 'Python',
+    monacoId: 'python',
+    icon: '🐍',
+    color: '#3572A5',
+    defaultCode: `# Python 3
+def greet(name: str) -> str:
+    return f"Hello, {name}! Welcome to CompileX."
+
+print(greet("World"))
+
+# Fibonacci sequence
+def fibonacci(n: int) -> int:
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+fib_sequence = [fibonacci(i) for i in range(10)]
+print("Fibonacci:", fib_sequence)
+
+# List comprehension example
+squares = [x**2 for x in range(1, 6)]
+print("Squares:", squares)`,
+    fileExtension: 'py',
+  },
+  
   {
     id: 'cpp',
     name: 'C++',
@@ -172,6 +148,32 @@ int main() {
     return 0;
 }`,
     fileExtension: 'c',
+  },
+  {
+    id: 'javascript',
+    name: 'JavaScript',
+    monacoId: 'javascript',
+    icon: '🟨',
+    color: '#F7DF1E',
+    defaultCode: `// JavaScript - Node.js
+function greet(name) {
+  return \`Hello, \${name}! Welcome to CompileX.\`;
+}
+
+console.log(greet("World"));
+console.log("Current time:", new Date().toISOString());
+
+// Fibonacci sequence
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+for (let i = 0; i < 10; i++) {
+  process.stdout.write(fibonacci(i) + " ");
+}
+console.log();`,
+    fileExtension: 'js',
   },
   {
     id: 'typescript',
