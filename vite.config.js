@@ -19,11 +19,13 @@ if (existsSync(envPath)) {
 }
 
 
-// Local dev API handler (mirrors api/execute.js for Vercel)
+// Language IDs — these work for the public ce.judge0.com endpoint and judge0-ce RapidAPI
 const LANGUAGE_IDS = {
   javascript: 63, python: 71, java: 62, cpp: 54,
   c: 50, typescript: 74, go: 60, rust: 73, ruby: 72, php: 68,
 };
+
+function getLanguageIds() { return LANGUAGE_IDS; }
 
 function localApiPlugin() {
   return {
@@ -48,47 +50,26 @@ function localApiPlugin() {
         req.on('end', async () => {
           try {
             const { code, language, stdin = '' } = JSON.parse(body);
-            const langId = LANGUAGE_IDS[language?.toLowerCase()];
+            const langId = getLanguageIds()[language?.toLowerCase()];
             if (!langId) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({ error: `Unsupported language: ${language}` }));
               return;
             }
-            const apiKey = process.env.JUDGE0_API_KEY || '';
             const startTime = Date.now();
-            if (!apiKey) {
-              // Demo mode without API key
-              await new Promise(r => setTimeout(r, 900 + Math.random() * 300));
-              const demos = {
-                javascript: `Hello, World! Welcome to CompileX.\nFibonacci: 0 1 1 2 3 5 8 13 21 34 \n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-                python: `Hello, Developer! Writing Python on CompileX.\nFibonacci: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]\nSquares: [1, 4, 9, 16, 25]\n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-                java: `Hello, World! Welcome to CompileX.\nFibonacci: 0 1 1 2 3 5 8 13 21 34 \nSorted: [1, 2, 3, 5, 8, 9]\n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-                cpp: `Hello, World! Welcome to CompileX.\nFibonacci: 0 1 1 2 3 5 8 13 21 34 \nSorted: 1 2 3 5 8 9 \n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-                c: `Hello, World! Welcome to CompileX.\nFibonacci: 0 1 1 2 3 5 8 13 21 34 \nSorted: 1 2 3 5 8 9 \n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-                typescript: `Hello, Developer! Writing TypeScript on CompileX.\n42\nCompileX\nDirection: UP\n[Demo Mode] Configure JUDGE0_API_KEY for real execution`,
-              };
-              const output = demos[language?.toLowerCase()] || `[Demo Mode] Executed ${language} code.\nConfigure JUDGE0_API_KEY for real execution.`;
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({
-                stdout: output, stderr: '',
-                status: { id: 3, description: 'Accepted' },
-                time: '0.089', memory: 3200,
-                executionTime: Date.now() - startTime,
-              }));
-              return;
-            }
-            // Real Judge0 call
-            const apiHost = process.env.JUDGE0_API_HOST || 'judge0-ce.p.rapidapi.com';
-            const baseUrl = `https://${apiHost}`;
-            const resp = await fetch(`${baseUrl}/submissions?base64_encoded=false&wait=true`, {
+            // Use free public Judge0 CE endpoint — no API key required
+            const PUBLIC_JUDGE0 = 'https://ce.judge0.com';
+            const resp = await fetch(`${PUBLIC_JUDGE0}/submissions?base64_encoded=false&wait=true`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-RapidAPI-Key': apiKey,
-                'X-RapidAPI-Host': apiHost,
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ source_code: code, language_id: langId, stdin, cpu_time_limit: 5 }),
             });
+            if (!resp.ok) {
+              const errText = await resp.text();
+              res.writeHead(502, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: `Judge0 API error (HTTP ${resp.status}): ${errText}` }));
+              return;
+            }
             const result = await resp.json();
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ...result, executionTime: Date.now() - startTime }));

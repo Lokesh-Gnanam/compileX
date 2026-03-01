@@ -1,14 +1,12 @@
 // Vercel Serverless Function - /api/execute.js
-// Handles code execution via Judge0 API
+// Uses the free public Judge0 CE endpoint — no API key required
 
-const JUDGE0_API_URL = process.env.JUDGE0_API_URL || 'https://judge0-ce.p.rapidapi.com';
-const JUDGE0_API_KEY = process.env.JUDGE0_API_KEY || '';
-const JUDGE0_API_HOST = process.env.JUDGE0_API_HOST || 'judge0-ce.p.rapidapi.com';
+const PUBLIC_JUDGE0 = 'https://ce.judge0.com';
 
-// Language ID mapping for Judge0 API
+// Standard CE language IDs (match ce.judge0.com exactly)
 const LANGUAGE_IDS = {
-  javascript: 63,   // Node.js (18.15.0)
-  python: 71,       // Python 3 (3.11.2)
+  javascript: 63,   // Node.js (12.14.0)
+  python: 71,       // Python (3.8.1)
   java: 62,         // Java (OpenJDK 13.0.1)
   cpp: 54,          // C++ (GCC 9.2.0)
   c: 50,            // C (GCC 9.2.0)
@@ -47,30 +45,10 @@ export default async function handler(req, res) {
   try {
     const startTime = Date.now();
 
-    // If no API key configured, return a demo response
-    if (!JUDGE0_API_KEY) {
-      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
-      const execTime = Date.now() - startTime;
-      
-      // Simulate basic execution for demo without API key
-      return res.status(200).json({
-        stdout: getDemoOutput(language, code),
-        stderr: '',
-        status: { id: 3, description: 'Accepted' },
-        time: (execTime / 1000).toFixed(3),
-        memory: Math.floor(Math.random() * 5000) + 2000,
-        executionTime: execTime,
-      });
-    }
-
-    // Submit to Judge0
-    const submitResponse = await fetch(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`, {
+    // Submit to public Judge0 CE
+    const submitResponse = await fetch(`${PUBLIC_JUDGE0}/submissions?base64_encoded=false&wait=true`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-RapidAPI-Key': JUDGE0_API_KEY,
-        'X-RapidAPI-Host': JUDGE0_API_HOST,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         source_code: code,
         language_id: languageId,
@@ -79,6 +57,11 @@ export default async function handler(req, res) {
         memory_limit: 128000,
       }),
     });
+
+    if (!submitResponse.ok) {
+      const errText = await submitResponse.text();
+      return res.status(502).json({ error: `Judge0 error (HTTP ${submitResponse.status}): ${errText}` });
+    }
 
     const result = await submitResponse.json();
     const executionTime = Date.now() - startTime;
@@ -99,16 +82,4 @@ export default async function handler(req, res) {
       stderr: error.message,
     });
   }
-}
-
-function getDemoOutput(language, code) {
-  // Basic demo outputs when no API key is configured
-  const demos = {
-    javascript: 'Hello, World!\n[Demo Mode: Configure JUDGE0_API_KEY for real execution]',
-    python: 'Hello, World!\n[Demo Mode: Configure JUDGE0_API_KEY for real execution]',
-    java: 'Hello, World!\n[Demo Mode: Configure JUDGE0_API_KEY for real execution]',
-    cpp: 'Hello, World!\n[Demo Mode: Configure JUDGE0_API_KEY for real execution]',
-    c: 'Hello, World!\n[Demo Mode: Configure JUDGE0_API_KEY for real execution]',
-  };
-  return demos[language.toLowerCase()] || `[Demo Mode] Code executed in ${language}\nConfigure JUDGE0_API_KEY environment variable for real execution.`;
 }
