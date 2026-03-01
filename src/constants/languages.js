@@ -69,4 +69,4 @@ export const getLanguageById = (id) => {
   return LANGUAGES.find(lang => lang.id === id) || LANGUAGES[0];
 };
 
-export const DEFAULT_LANGUAGE_ID = 'javascript';
+export const DEFAULT_LANGUAGE_ID = 'java';
